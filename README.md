@@ -1,1 +1,6 @@
-# Proyecto_Totem_Triage
+# Tótem: Triage Médico Automatizado
+El proyecto a continuación propone el desarrollo de un Tótem Inteligente de Triage Automatizado con inteligencia artificial integrada, el cuál estará orientado a apoyar el proceso de triage en los servicios de urgencia. La solución que este busca dar se basa en optimizar la atención inicial de los pacientes mediante un sistema de autoatención que permite a estos medir y registrar sus signos vitales importantes y antecedentes clínicos antes de ser evaluados por el personal de enfermería.
+
+El tótem recopila datos clínicos como presión arterial, frecuencia cardíaca, saturación de oxígeno, temperatura, peso, altura y antecedentes de enfermedades crónicas. Posteriormente, un modelo de inteligencia artificial analiza estos datos y genera una recomendación de nivel de urgencia basada en criterios de triage y del propio centro de urgencias, entregando un apoyo al personal clínico para la priorización en la atención de los pacientes.
+
+Este proyecto integra tecnologías de desarrollo de software, IoT, bases de datos e inteligencia artificial, respondiendo a una necesidad real del ámbito de los hospitales de urgencias, la cual es mejorar la eficiencia del proceso de clasificación de pacientes y reducir los tiempos asociados a la atención inicial en urgencias.
