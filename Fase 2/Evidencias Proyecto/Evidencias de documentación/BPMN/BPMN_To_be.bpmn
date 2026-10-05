@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Totem" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Totem" name="Proceso de evaluación de aptitud física" processRef="Process_Totem" />
+    <bpmn:participant id="Participant_Encargado" name="Encargado del gimnasio" processRef="Process_Encargado" />
+    <bpmn:messageFlow id="MF_Alerta" name="Alerta crítica" sourceRef="SendTask_Alerta" targetRef="Start_Alerta" />
+    <bpmn:messageFlow id="MF_Resultado" name="Resultado de aptitud" sourceRef="Task_GenerarCategoria" targetRef="Start_Resultado" />
+    <bpmn:textAnnotation id="Annotation_Riesgo">
+      <bpmn:text>Cualquier respuesta de riesgo grave en el cuestionario detiene la evaluación y se deriva al encargado.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_Riesgo" sourceRef="Annotation_Riesgo" targetRef="Gateway_Riesgo" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Totem" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Usuario" name="Usuario / Cliente del gimnasio">
+        <bpmn:flowNodeRef>Task_Resultado</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Completada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Cuestionario</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Antecedentes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Mediciones</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Totem" name="Tótem (app + sensores)">
+        <bpmn:flowNodeRef>Task_ReintentarSV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Antropometria</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Boundary_FallaAntro</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SignosVitales</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Boundary_FallaSV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Riesgo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReintentarAntro</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RangoSeguro</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnviarDatos</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Backend" name="Backend / IA">
+        <bpmn:flowNodeRef>End_Derivada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerarCategoria</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Clasificar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SendTask_Alerta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Condicion</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:task id="Task_ReintentarSV" name="Solicitar nueva medición">
+      <bpmn:incoming>SF_B1</bpmn:incoming>
+      <bpmn:outgoing>SF_B2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:userTask id="Task_Resultado" name="Visualizar resultado">
+      <bpmn:incoming>SF15</bpmn:incoming>
+      <bpmn:outgoing>SF16</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Completada" name="Fin: evaluación completada">
+      <bpmn:incoming>SF16</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_Derivada" name="Fin: evaluación derivada">
+      <bpmn:incoming>SF17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF1" sourceRef="StartEvent_1" targetRef="Task_Antecedentes" />
+    <bpmn:sequenceFlow id="SF2" sourceRef="Task_Antecedentes" targetRef="Task_Cuestionario" />
+    <bpmn:sequenceFlow id="SF3" sourceRef="Task_Cuestionario" targetRef="Gateway_Riesgo" />
+    <bpmn:sequenceFlow id="SF4" name="Sí" sourceRef="Gateway_Riesgo" targetRef="SendTask_Alerta" />
+    <bpmn:sequenceFlow id="SF5" name="No" sourceRef="Gateway_Riesgo" targetRef="Task_SignosVitales" />
+    <bpmn:sequenceFlow id="SF6" sourceRef="Task_SignosVitales" targetRef="Task_Mediciones" />
+    <bpmn:sequenceFlow id="SF7" sourceRef="Task_Mediciones" targetRef="Gateway_RangoSeguro" />
+    <bpmn:sequenceFlow id="SF8" name="Fuera de rango" sourceRef="Gateway_RangoSeguro" targetRef="SendTask_Alerta" />
+    <bpmn:sequenceFlow id="SF9" name="Dentro de rango" sourceRef="Gateway_RangoSeguro" targetRef="Task_Antropometria" />
+    <bpmn:sequenceFlow id="SF10" sourceRef="Task_Antropometria" targetRef="Task_EnviarDatos" />
+    <bpmn:sequenceFlow id="SF11" sourceRef="Task_EnviarDatos" targetRef="Task_Clasificar" />
+    <bpmn:sequenceFlow id="SF12" sourceRef="Task_Clasificar" targetRef="Gateway_Condicion" />
+    <bpmn:sequenceFlow id="SF13" name="Sí" sourceRef="Gateway_Condicion" targetRef="SendTask_Alerta" />
+    <bpmn:sequenceFlow id="SF14" name="No" sourceRef="Gateway_Condicion" targetRef="Task_GenerarCategoria" />
+    <bpmn:sequenceFlow id="SF15" sourceRef="Task_GenerarCategoria" targetRef="Task_Resultado" />
+    <bpmn:sequenceFlow id="SF16" sourceRef="Task_Resultado" targetRef="End_Completada" />
+    <bpmn:sequenceFlow id="SF17" sourceRef="SendTask_Alerta" targetRef="End_Derivada" />
+    <bpmn:sequenceFlow id="SF_B1" sourceRef="Boundary_FallaSV" targetRef="Task_ReintentarSV" />
+    <bpmn:sequenceFlow id="SF_B2" sourceRef="Task_ReintentarSV" targetRef="Task_SignosVitales" />
+    <bpmn:sequenceFlow id="SF_B3" sourceRef="Boundary_FallaAntro" targetRef="Task_ReintentarAntro" />
+    <bpmn:sequenceFlow id="SF_B4" sourceRef="Task_ReintentarAntro" targetRef="Task_Antropometria" />
+    <bpmn:scriptTask id="Task_GenerarCategoria" name="Generar categoría de aptitud física">
+      <bpmn:incoming>SF14</bpmn:incoming>
+      <bpmn:outgoing>SF15</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Task_Clasificar" name="Clasificar con XGBoost">
+      <bpmn:incoming>SF11</bpmn:incoming>
+      <bpmn:outgoing>SF12</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DOA_Guardar">
+        <bpmn:targetRef>DataStore_BD</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:scriptTask>
+    <bpmn:dataStoreReference id="DataStore_BD" name="Base de datos (PostgreSQL)" />
+    <bpmn:serviceTask id="Task_Antropometria" name="Capturar antropometría">
+      <bpmn:incoming>SF9</bpmn:incoming>
+      <bpmn:incoming>SF_B4</bpmn:incoming>
+      <bpmn:outgoing>SF10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Boundary_FallaAntro" name="Falla de sensor" attachedToRef="Task_Antropometria">
+      <bpmn:outgoing>SF_B3</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorDef_Antro" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_SignosVitales" name="Capturar signos vitales en reposo">
+      <bpmn:incoming>SF5</bpmn:incoming>
+      <bpmn:incoming>SF_B2</bpmn:incoming>
+      <bpmn:outgoing>SF6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Boundary_FallaSV" name="Falla de sensor" attachedToRef="Task_SignosVitales">
+      <bpmn:outgoing>SF_B1</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorDef_SV" />
+    </bpmn:boundaryEvent>
+    <bpmn:exclusiveGateway id="Gateway_Riesgo" name="¿Bandera de riesgo grave?">
+      <bpmn:incoming>SF3</bpmn:incoming>
+      <bpmn:outgoing>SF4</bpmn:outgoing>
+      <bpmn:outgoing>SF5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sendTask id="SendTask_Alerta" name="Enviar alerta crítica al encargado">
+      <bpmn:incoming>SF4</bpmn:incoming>
+      <bpmn:incoming>SF8</bpmn:incoming>
+      <bpmn:incoming>SF13</bpmn:incoming>
+      <bpmn:outgoing>SF17</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:userTask id="Task_Cuestionario" name="Responder cuestionario de salud">
+      <bpmn:incoming>SF2</bpmn:incoming>
+      <bpmn:outgoing>SF3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_Antecedentes" name="Ingresar antecedentes personales">
+      <bpmn:incoming>SF1</bpmn:incoming>
+      <bpmn:outgoing>SF2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_1" name="Llega al tótem">
+      <bpmn:outgoing>SF1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ReintentarAntro" name="Solicitar nueva medición">
+      <bpmn:incoming>SF_B3</bpmn:incoming>
+      <bpmn:outgoing>SF_B4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_RangoSeguro" name="¿Signo vital fuera de rango seguro?">
+      <bpmn:incoming>SF7</bpmn:incoming>
+      <bpmn:outgoing>SF8</bpmn:outgoing>
+      <bpmn:outgoing>SF9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_Mediciones" name="Realizar mediciones guiadas">
+      <bpmn:incoming>SF6</bpmn:incoming>
+      <bpmn:outgoing>SF7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_EnviarDatos" name="Enviar datos al backend">
+      <bpmn:incoming>SF10</bpmn:incoming>
+      <bpmn:outgoing>SF11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_Condicion" name="¿Condición de riesgo detectada?">
+      <bpmn:incoming>SF12</bpmn:incoming>
+      <bpmn:outgoing>SF13</bpmn:outgoing>
+      <bpmn:outgoing>SF14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+  </bpmn:process>
+  <bpmn:process id="Process_Encargado" isExecutable="false">
+    <bpmn:startEvent id="Start_Alerta" name="Alerta recibida">
+      <bpmn:outgoing>SF_E1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_Alerta" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SF_E1" sourceRef="Start_Alerta" targetRef="Task_RevisarAlerta" />
+    <bpmn:sequenceFlow id="SF_E2" sourceRef="Task_RevisarAlerta" targetRef="End_Derivacion" />
+    <bpmn:sequenceFlow id="SF_E3" sourceRef="Start_Resultado" targetRef="Task_RevisarDashboard" />
+    <bpmn:sequenceFlow id="SF_E4" sourceRef="Task_RevisarDashboard" targetRef="End_Confirmado" />
+    <bpmn:endEvent id="End_Confirmado" name="Fin: resultado confirmado">
+      <bpmn:incoming>SF_E4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_RevisarDashboard" name="Revisar resultado en el dashboard">
+      <bpmn:incoming>SF_E3</bpmn:incoming>
+      <bpmn:outgoing>SF_E4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="Start_Resultado" name="Resultado recibido">
+      <bpmn:outgoing>SF_E3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_Resultado" />
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RevisarAlerta" name="Revisar alerta y derivar a evaluación médica">
+      <bpmn:incoming>SF_E1</bpmn:incoming>
+      <bpmn:outgoing>SF_E2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Derivacion" name="Fin: derivación registrada">
+      <bpmn:incoming>SF_E2</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Totem_di" bpmnElement="Participant_Totem" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1830" height="580" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Backend_di" bpmnElement="Lane_Backend" isHorizontal="true">
+        <dc:Bounds x="190" y="460" width="1800" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Totem_di" bpmnElement="Lane_Totem" isHorizontal="true">
+        <dc:Bounds x="190" y="240" width="1800" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Usuario_di" bpmnElement="Lane_Usuario" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1800" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReintentarSV_di" bpmnElement="Task_ReintentarSV">
+        <dc:Bounds x="600" y="385" width="100" height="65" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Resultado_di" bpmnElement="Task_Resultado">
+        <dc:Bounds x="1750" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Completada_di" bpmnElement="End_Completada">
+        <dc:Bounds x="1912" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1893" y="186" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Derivada_di" bpmnElement="End_Derivada">
+        <dc:Bounds x="352" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="333" y="586" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerarCategoria_di" bpmnElement="Task_GenerarCategoria">
+        <dc:Bounds x="1530" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Clasificar_di" bpmnElement="Task_Clasificar">
+        <dc:Bounds x="1220" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_BD_di" bpmnElement="DataStore_BD">
+        <dc:Bounds x="1060" y="535" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1050" y="585" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Antropometria_di" bpmnElement="Task_Antropometria">
+        <dc:Bounds x="1170" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SignosVitales_di" bpmnElement="Task_SignosVitales">
+        <dc:Bounds x="730" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Riesgo_di" bpmnElement="Gateway_Riesgo" isMarkerVisible="true">
+        <dc:Bounds x="495" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="445.5" y="326" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SendTask_Alerta_di" bpmnElement="SendTask_Alerta">
+        <dc:Bounds x="470" y="520" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Cuestionario_di" bpmnElement="Task_Cuestionario">
+        <dc:Bounds x="470" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Antecedentes_di" bpmnElement="Task_Antecedentes">
+        <dc:Bounds x="340" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="242" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="225" y="178" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReintentarAntro_di" bpmnElement="Task_ReintentarAntro">
+        <dc:Bounds x="1035" y="385" width="100" height="65" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RangoSeguro_di" bpmnElement="Gateway_RangoSeguro" isMarkerVisible="true">
+        <dc:Bounds x="925" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="856.5" y="326" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Mediciones_di" bpmnElement="Task_Mediciones">
+        <dc:Bounds x="900" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EnviarDatos_di" bpmnElement="Task_EnviarDatos">
+        <dc:Bounds x="1330" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Condicion_di" bpmnElement="Gateway_Condicion" isMarkerVisible="true">
+        <dc:Bounds x="1395" y="535" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1376" y="497.5" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_FallaAntro_di" bpmnElement="Boundary_FallaAntro">
+        <dc:Bounds x="1202" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1222" y="368" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_FallaSV_di" bpmnElement="Boundary_FallaSV">
+        <dc:Bounds x="762" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="722" y="423" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SF1_di" bpmnElement="SF1">
+        <di:waypoint x="278" y="160" />
+        <di:waypoint x="340" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF2_di" bpmnElement="SF2">
+        <di:waypoint x="440" y="160" />
+        <di:waypoint x="470" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF3_di" bpmnElement="SF3">
+        <di:waypoint x="520" y="200" />
+        <di:waypoint x="520" y="285" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF4_di" bpmnElement="SF4">
+        <di:waypoint x="520" y="335" />
+        <di:waypoint x="520" y="520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="530" y="418" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF5_di" bpmnElement="SF5">
+        <di:waypoint x="545" y="310" />
+        <di:waypoint x="730" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="631" y="285" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF6_di" bpmnElement="SF6">
+        <di:waypoint x="780" y="270" />
+        <di:waypoint x="780" y="160" />
+        <di:waypoint x="900" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF7_di" bpmnElement="SF7">
+        <di:waypoint x="950" y="200" />
+        <di:waypoint x="950" y="285" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF8_di" bpmnElement="SF8">
+        <di:waypoint x="950" y="335" />
+        <di:waypoint x="950" y="560" />
+        <di:waypoint x="570" y="560" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="862" y="493" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF9_di" bpmnElement="SF9">
+        <di:waypoint x="975" y="310" />
+        <di:waypoint x="1170" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1033" y="285" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF10_di" bpmnElement="SF10">
+        <di:waypoint x="1270" y="310" />
+        <di:waypoint x="1330" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF11_di" bpmnElement="SF11">
+        <di:waypoint x="1380" y="350" />
+        <di:waypoint x="1380" y="435" />
+        <di:waypoint x="1270" y="435" />
+        <di:waypoint x="1270" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF12_di" bpmnElement="SF12">
+        <di:waypoint x="1320" y="560" />
+        <di:waypoint x="1395" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF13_di" bpmnElement="SF13">
+        <di:waypoint x="1420" y="585" />
+        <di:waypoint x="1420" y="635" />
+        <di:waypoint x="520" y="635" />
+        <di:waypoint x="520" y="600" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="965" y="643" width="11" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF14_di" bpmnElement="SF14">
+        <di:waypoint x="1445" y="560" />
+        <di:waypoint x="1530" y="560" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1480" y="535" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF15_di" bpmnElement="SF15">
+        <di:waypoint x="1580" y="520" />
+        <di:waypoint x="1580" y="160" />
+        <di:waypoint x="1750" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF16_di" bpmnElement="SF16">
+        <di:waypoint x="1850" y="160" />
+        <di:waypoint x="1912" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF17_di" bpmnElement="SF17">
+        <di:waypoint x="470" y="560" />
+        <di:waypoint x="388" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_B1_di" bpmnElement="SF_B1">
+        <di:waypoint x="780" y="368" />
+        <di:waypoint x="780" y="418" />
+        <di:waypoint x="700" y="418" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_B2_di" bpmnElement="SF_B2">
+        <di:waypoint x="600" y="417" />
+        <di:waypoint x="580" y="417" />
+        <di:waypoint x="580" y="335" />
+        <di:waypoint x="730" y="335" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_B3_di" bpmnElement="SF_B3">
+        <di:waypoint x="1220" y="368" />
+        <di:waypoint x="1220" y="418" />
+        <di:waypoint x="1135" y="418" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_B4_di" bpmnElement="SF_B4">
+        <di:waypoint x="1035" y="417" />
+        <di:waypoint x="980" y="417" />
+        <di:waypoint x="980" y="335" />
+        <di:waypoint x="1170" y="335" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Encargado_di" bpmnElement="Participant_Encargado" isHorizontal="true">
+        <dc:Bounds x="160" y="720" width="1830" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Alerta_di" bpmnElement="Start_Alerta">
+        <dc:Bounds x="452" y="802" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Confirmado_di" bpmnElement="End_Confirmado">
+        <dc:Bounds x="1902" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1887" y="838" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RevisarDashboard_di" bpmnElement="Task_RevisarDashboard">
+        <dc:Bounds x="1740" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Resultado_di" bpmnElement="Start_Resultado">
+        <dc:Bounds x="1562" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1555" y="838" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RevisarAlerta_di" bpmnElement="Task_RevisarAlerta">
+        <dc:Bounds x="580" y="780" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Derivacion_di" bpmnElement="End_Derivacion">
+        <dc:Bounds x="752" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="734" y="838" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SF_E1_di" bpmnElement="SF_E1">
+        <di:waypoint x="488" y="820" />
+        <di:waypoint x="580" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_E2_di" bpmnElement="SF_E2">
+        <di:waypoint x="680" y="820" />
+        <di:waypoint x="752" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_E3_di" bpmnElement="SF_E3">
+        <di:waypoint x="1598" y="820" />
+        <di:waypoint x="1740" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_E4_di" bpmnElement="SF_E4">
+        <di:waypoint x="1840" y="820" />
+        <di:waypoint x="1902" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Riesgo_di" bpmnElement="Assoc_Riesgo">
+        <di:waypoint x="440" y="310" />
+        <di:waypoint x="495" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DOA_Guardar_di" bpmnElement="DOA_Guardar">
+        <di:waypoint x="1220" y="560" />
+        <di:waypoint x="1110" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Alerta_di" bpmnElement="MF_Alerta">
+        <di:waypoint x="470" y="590" />
+        <di:waypoint x="470" y="802" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="479" y="686" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Resultado_di" bpmnElement="MF_Resultado">
+        <di:waypoint x="1580" y="600" />
+        <di:waypoint x="1580" y="802" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1587" y="684" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Annotation_Riesgo_di" bpmnElement="Annotation_Riesgo">
+        <dc:Bounds x="230" y="286" width="210" height="70" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
