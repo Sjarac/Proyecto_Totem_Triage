@@ -1,123 +1,102 @@
-# Tótem Inteligente de Triage Automatizado con IA
+# Tótem de Evaluación de Aptitud Física con IA
 
-Sistema ciberfísico de autoatención clínica y telemetría médica preliminar diseñado para optimizar el flujo de admisión y categorización en servicios de urgencia hospitalaria mediante IoT, Machine Learning y arquitecturas web modernas.
+Tótem de autoservicio para gimnasios que evalúa si una persona está en condiciones de entrenar. Combina un cuestionario de salud, mediciones biométricas y un modelo de machine learning para entregar una recomendación de aptitud física. Solo un profesional de salud calificado puede modificar ese resultado.
+
+Proyecto de título de Ingeniería en Informática, Duoc UC.
 
 ---
 
 ## 1. Descripción del Proyecto
 
 ### ¿Qué problema resuelve?
-En las unidades de urgencia hospitalaria, el proceso tradicional de admisión presenta cuellos de botella derivados de la toma manual y transcripción analógica de signos vitales. Esta latencia retrasa la detección temprana del deterioro hemodinámico en salas de espera y sobrecarga operativa al personal clínico.
+Hoy no existe ningún filtro de aptitud física antes de que un socio empiece a entrenar en el gimnasio. La decisión queda en manos del propio usuario, sin ningún dato objetivo, y eso implica riesgo de sobreexigencia o incluso de problemas de salud.
 
 ### ¿A quién va dirigido?
-* **Usuarios finales:** Pacientes que ingresan a los servicios de urgencia hospitalaria.
-* **Usuarios clínicos:** Personal de enfermería y médicos encargados de la supervisión, validación y asignación final de prioridades de atención (box de triage).
+* **Usuario final:** usuario del gimnasio que se evalúa antes de entrenar.
+* **Encargado del gimnasio:** ve el resultado en el dashboard y, ante una emergencia, deriva al usuario a atención médica. No puede modificar el resultado del análisis.
+* **Profesional de salud calificado:** único autorizado para revisar y modificar el resultado del análisis.
 
 ### ¿Qué hace la solución?
-Permite al paciente registrar de forma autónoma sus signos vitales mediante sensores biomédicos conectados directamente a una tablet/kiosko interactivo. La información fisiológica se consolida junto con una anamnesis estructurada de antecedentes mórbidos y es evaluada por un modelo de Machine Learning que genera una recomendación objetiva del nivel de urgencia (basado en protocolos estandarizados como ESI / Manchester), disponibilizando los resultados en tiempo real para el equipo de salud.
+El usuario responde un cuestionario de salud en el tótem y se toma sus signos vitales y su composición corporal. Un modelo de machine learning genera una categoría de aptitud (por ejemplo: apto, apto con precaución o requiere evaluación médica) junto con su nivel de confianza. Si detecta una condición de riesgo, envía una alerta al encargado para que derive al usuario a atención médica. El sistema apoya el criterio profesional, nunca lo reemplaza: cualquier cambio en el resultado lo hace un profesional de salud calificado.
+
+### Estado actual
+Prototipo funcional de punta a punta: la app del tótem (con mediciones simuladas), el cuestionario de salud, el backend con el modelo de IA, la base de datos y el dashboard con inicio de sesión. La integración con los sensores reales está pendiente de la compra del hardware.
 
 ---
 
 ## 2. Tecnologías Utilizadas
 
-* **Frontend & Ingesta IoT:**
-  * Framework: React / Next.js (Progressive Web App - PWA)
-  * Hardware APIs: Web Bluetooth API (`navigator.bluetooth`), Web Serial API (`navigator.serial`)
-  * Lenguaje: TypeScript / JavaScript
-* **Backend & Servicios:**
-  * Framework: Python (FastAPI)
-  * Validación y esquemas: Pydantic / JSON Schema
-* **Machine Learning & Procesamiento:**
-  * Librerías: Scikit-Learn, Pandas, NumPy
-  * Modelo: Clasificación multiclase supervisada para estratificación de riesgo clínico
-* **Persistencia de Datos:**
-  * Base de datos: PostgreSQL / SQL Server
-* **Contenedores & Despliegue:**
-  * Docker & Docker Compose
+* **App del tótem:** React Native (Expo) sobre una tablet Android.
+* **Hardware (en integración):** ESP32, termómetro Beurer FT95, oxímetro de pulso, tensiómetro Beurer BM54, balanza con bioimpedancia y pantalla LED de estado, conectados por Bluetooth.
+* **Backend:** Python (FastAPI).
+* **Machine Learning:** XGBoost, con Vertex AI.
+* **Base de datos:** PostgreSQL.
+* **Dashboard (encargado y profesional de salud):** Next.js / React.js.
+* **Control de versiones:** Git y GitHub.
 
 ---
 
 ## 3. Arquitectura de la Solución
 
-El sistema desacopla la adquisición de señales fisiológicas de bajo nivel en el cliente web, comunicándose de manera asíncrona con el backend para la inferencia algorítmica:
-
-
+```
+[Sensores Bluetooth]                 [App del tótem]                 [Backend y Cloud]
+ Termómetro, oxímetro,   ──BLE──>     React Native      ──HTTPS──>    FastAPI ──> XGBoost (Vertex AI)
+ tensiómetro, balanza                 (tablet + ESP32)                   │
+                                                                         ▼
+                                                                     PostgreSQL
+                                                                         │
+                                                                         ▼
+                                                                 [Dashboard]
+                                                          Next.js / React.js
 ```
 
-[Sensores Biomédicos]
-├── Oxímetro de Pulso (BLE GATT 0x1822)     ──> [Web Bluetooth API]
-├── Báscula Bioimpedancia (BLE GATT genérico)──> [Web Bluetooth API] ──> [Tablet / PWA Client]
-├── Termómetro Infrarrojo (UART Serial)       ──> [Web Serial API]              │
-└── Tensiómetro Oscilométrico                 ──> [Formulario Asistido]         │ JSON / HTTPS
-▼
-[Backend API REST (FastAPI)]
-│
-┌─────────────────────────┴─────────────────────────┐
-▼                                                   ▼
-[Motor de Inferencia ML]                            [Base de Datos Relacional]
-(Estratificación de Urgencia)                              (Historial y Logs)
-
-```
+El detalle está en el [diagrama de componentes](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Diagramas%20UML/Diagrama%20de%20componentes.png).
 
 ---
 
 ## 4. Metodología de Trabajo
 
-El proyecto se gestiona bajo el marco de trabajo **Scrum**, estructurado en sprints quincenales orientados a la entrega incremental de valor:
-* **Planificación & Backlog:** Gestión de épicas e historias de usuario en GitHub Projects.
-* **Control de versiones:** Flujo Git estructurado con ramas por funcionalidad (`feature/*`), pruebas (`develop`) y versiones estables (`main`).
-* **Calidad y Revisiones:** Revisiones de código mediante Pull Requests, pruebas de integración por sprint y retrospectivas periódicas.
+El proyecto se gestiona con **Scrum**. Al cierre de cada sprint se hace una retrospectiva, y cada tarea se da por terminada solo cuando cumple la Definición de Terminado (DoD) del equipo. El código y la documentación se versionan en GitHub.
 
 ---
 
 ## 5. Integrantes y Roles
 
-| Nombre | Rol | Responsabilidades Principales |
+| Nombre | Rol | Responsabilidades principales |
 | :--- | :--- | :--- |
-| **Cristóbal Hernández** | Scrum Master / Tech Lead | Arquitectura del sistema, integración IoT (Web Bluetooth/Serial) y pipeline de inferencia ML. |
-| **[Nombre Integrante 2]** | Full Stack Developer | Desarrollo de interfaz táctil PWA, formularios de anamnesis y consumo de APIs. |
-| **[Nombre Integrante 3]** | Data & Backend Engineer | Modelado de datos relacional, endpoints en FastAPI y contenedorización Docker. |
+| **Cristóbal Hernández Orellana** | Product Owner / Scrum Master | Liderazgo del proyecto. |
+| **Thomas Gutiérrez Suárez** | Desarrollo (Hardware, Backend y Frontend) | Creación de la aplicación y del tótem. |
+| **Sebastián Jara Correa** | Ciencia de datos y QA | Creación y entrenamiento del modelo de ML. |
 
 ---
 
-## 6. Instrucciones de Ejecución Local
+## 6. Documentación del Proyecto
 
-### Prerrequisitos
-* [Docker Desktop](https://www.docker.com/) instalado y en ejecución.
-* [Node.js](https://nodejs.org/) v18+ y [Python](https://www.python.org/) 3.10+ (para depuración local sin contenedor).
-* Navegador basado en Chromium (Google Chrome / Edge) con soporte de Web Bluetooth y Web Serial habilitado.
+Toda la documentación de la Fase 2 está en [`Fase 2/Evidencias Proyecto/Evidencias de documentación`](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n).
 
-### Despliegue con Docker Compose
+### Requisitos funcionales
+En el [Excel de requisitos](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Requisitos), hojas *Requisitos gestión usuario* a *Integración e interoperabilidad* (R.1 a R.170).
 
-1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/tu-usuario/nombre-del-proyecto.git](https://github.com/tu-usuario/nombre-del-proyecto.git)
-   cd nombre-del-proyecto
+### Requisitos no funcionales
+En el mismo [Excel de requisitos](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Requisitos), en las 5 últimas hojas: Seguridad y privacidad, Rendimiento, Usabilidad y accesibilidad, Calidad y Mantenimiento (R.171 a R.250). Cada requisito indica su estado actual: Completado, En desarrollo, Diferido o Pendiente.
 
-```
+### Diagramas de proceso (BPMN)
+* [BPMN as-is](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/BPMN/BPMN_As_is.svg): el prototipo actual, con mediciones simuladas.
+* [BPMN to-be](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/BPMN/BPMN_To_be.svg): el tótem con sensores reales.
 
-2. **Configurar variables de entorno:**
-Crear un archivo `.env` en la raíz del proyecto basándose en la plantilla:
-```bash
-cp .env.example .env
+Los archivos `.bpmn` se pueden abrir y editar en [demo.bpmn.io](https://demo.bpmn.io).
 
-```
+### Diagramas UML
+* [Diagrama de componentes](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Diagramas%20UML/Diagrama%20de%20componentes.png)
+* [Diagramas de casos de uso](Fase%201/Evidencias%20Grupales/Diagramas%20de%20caso%20de%20uso.pdf) (Fase 1)
 
+### Metodología ágil
+* [Visión del Producto](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Vision_del_Producto.png)
+* [Definición de Terminado (DoD)](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Definicion_de_Terminado.png)
+* [Retrospectiva del Sprint 1](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectiva_Sprint_1.png)
 
-3. **Construir y levantar los contenedores:**
-```bash
-docker-compose up --build -d
+---
 
-```
+## 7. Instrucciones de Ejecución Local
 
-
-4. **Acceso a los servicios:**
-* **Frontend (Tótem PWA):** `http://localhost:3000`
-* **Backend API (Swagger Docs):** `http://localhost:8000/docs`
-* **Base de Datos:** `localhost:5432`
-
-
-
-```
-
-```
+*TODO. Se completará con los pasos para levantar la app del tótem, el backend y el dashboard.*
