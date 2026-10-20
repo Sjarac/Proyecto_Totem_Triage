@@ -1,0 +1,3 @@
+En snack.expo se encuentra la aplicación del proyecto. El link a continuación es una versión antigüa pero con este se puede comparar directamente el cambio durante el desarrollo de la aplicación misma. Solamente pueden entrar personas que tengan una invitación previa.
+
+https://snack.expo.dev/@happy_sky/happysdogs
