@@ -1,0 +1,3 @@
+En Vercel tenemos hosteado el dashboard del programa. Actualmente cualquier persona que tenga el link puede entrar. En el dashboard se revisan las aptitudes recomendadas por la IA y los encargados de salud o del gimnasio podrán modificar, confirmar o derivar estas mismas.
+
+https://triage-dashboard-three.vercel.app/
