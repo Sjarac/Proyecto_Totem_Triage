@@ -1,0 +1,169 @@
+@startuml Diagrama_de_clases
+' Vista lógica (4+1): modelo de clases del Tótem de Evaluación de Aptitud Física
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+skinparam nodesep 60
+skinparam ranksep 70
+skinparam defaultFontName Arial
+skinparam class {
+  BackgroundColor White
+  BorderColor #333333
+  ArrowColor #333333
+}
+<style>
+document {
+  Margin 30
+}
+</style>
+hide empty members
+hide circle
+
+class Usuario {
+  - id: int
+  - nombre: String
+  - matricula: String
+  - edad: int
+  - sexo: String
+  - carrera: String
+}
+
+class Evaluacion {
+  - id: int
+  - fecha: DateTime
+  - estado: EstadoEvaluacion
+  + enviar(): void
+}
+
+class ObjetivoEntrenamiento {
+  - objetivo: String
+  - experiencia: String
+  - duracionMin: int
+}
+
+class CuestionarioSalud {
+  - sintomas: List<String>
+  - condiciones: List<String>
+  + tieneBanderaRiesgo(): bool
+}
+
+class MedicionReposo {
+  - presionSistolica: int
+  - presionDiastolica: int
+  - fcReposo: int
+  - temperatura: float
+  - spo2: int
+  - peso: float
+  - altura: float
+  - grasaCorporal: float
+  + calcularIMC(): float
+  + fueraDeRango(): bool
+}
+
+class PruebaEsfuerzo {
+  - fcRecuperacion: int
+  - vo2Max: float
+  - interrumpida: bool
+  + estimarVO2Max(): float
+}
+
+class Sensor {
+  - id: int
+  - tipo: TipoSensor
+  - conectado: bool
+  + leer(): float
+}
+
+class ModeloIA {
+  - version: String
+  - umbralConfianza: float
+  + clasificar(e: Evaluacion): ResultadoIA
+}
+
+class ResultadoIA {
+  - categoriaSugerida: CategoriaAptitud
+  - confianza: float
+  - requiereDerivacion: bool
+}
+
+class Validacion {
+  - categoriaFinal: CategoriaAptitud
+  - motivo: String
+  - fecha: DateTime
+}
+
+class Alerta {
+  - tipo: TipoAlerta
+  - fecha: DateTime
+  - atendida: bool
+}
+
+abstract class Personal <<abstract>> {
+  - id: int
+  - nombre: String
+  - email: String
+  + iniciarSesion(): bool
+}
+
+class EncargadoGimnasio {
+  + verResultados(): List<Evaluacion>
+  + derivarEmergencia(a: Alerta): void
+}
+
+class EncargadoSalud {
+  + revisar(e: Evaluacion): ResultadoIA
+  + derivarEmergencia(a: Alerta): void
+  + confirmar(r: ResultadoIA): Validacion
+  + modificar(r: ResultadoIA, c: CategoriaAptitud, motivo: String): Validacion
+}
+
+class Administrador {
+  + gestionarPersonal(): void
+  + configurarRangos(): void
+}
+
+enum CategoriaAptitud <<enumeration>> {
+  A1_RIESGO_ALTO
+  A2_PRECAUCION
+  A3_APTO_MODERADO
+  A4_APTO
+}
+
+enum EstadoEvaluacion <<enumeration>> {
+  PENDIENTE
+  VALIDADA
+  DERIVADA
+}
+
+enum TipoSensor <<enumeration>> {
+  TENSIOMETRO
+  OXIMETRO
+  TERMOMETRO
+  BALANZA
+}
+
+enum TipoAlerta <<enumeration>> {
+  RIESGO_SALUD
+  FALLA_SENSOR
+}
+
+Usuario "1" --> "0..*" Evaluacion : realiza
+Evaluacion "1" *-- "1" ObjetivoEntrenamiento
+Evaluacion "1" *-- "1" CuestionarioSalud
+Evaluacion "1" *-- "1" MedicionReposo
+Evaluacion "1" *-- "0..1" PruebaEsfuerzo
+Sensor "1..*" -up-> "0..*" MedicionReposo : registra
+Sensor "1" -up-> "0..*" PruebaEsfuerzo : registra FC
+ModeloIA ..> Evaluacion : analiza
+ModeloIA ..> ResultadoIA : genera
+Evaluacion "1" --> "0..1" ResultadoIA : obtiene
+ResultadoIA "1" --> "0..1" Validacion : se valida en
+Evaluacion "0..1" --> "0..*" Alerta : genera
+Sensor "0..1" -up-> "0..*" Alerta : reporta falla
+Personal <|-- EncargadoGimnasio
+Personal <|-- EncargadoSalud
+Personal <|-- Administrador
+EncargadoSalud "1" --> "0..*" Validacion : realiza
+EncargadoGimnasio "0..1" --> "0..*" Alerta : atiende
+EncargadoSalud "0..1" --> "0..*" Alerta : atiende
+@enduml

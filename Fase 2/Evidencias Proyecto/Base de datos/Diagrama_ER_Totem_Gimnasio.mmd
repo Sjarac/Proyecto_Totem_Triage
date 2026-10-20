@@ -1,0 +1,127 @@
+erDiagram
+    SOCIOS ||--o{ SESIONES_TOTEM : "realiza"
+    TOTEMS ||--o{ SESIONES_TOTEM : "registra"
+    PERSONAL_GIMNASIO |o--o{ SESIONES_TOTEM : "atiende"
+    SESIONES_TOTEM ||--o{ MEDICIONES_CORPORALES : "tiene"
+    SESIONES_TOTEM ||--o| CUESTIONARIOS_OBJETIVOS : "tiene"
+    SESIONES_TOTEM ||--o| INFERENCIAS_IA : "genera"
+    SESIONES_TOTEM ||--o| RESULTADOS_RUTINA : "termina en"
+    INFERENCIAS_IA ||--o{ RESULTADOS_RUTINA : "se valida en"
+    PERSONAL_GIMNASIO |o--o{ RESULTADOS_RUTINA : "decide"
+    PERSONAL_GIMNASIO |o--o{ INFERENCIAS_IA : "revisa alerta"
+    PERSONAL_GIMNASIO |o--o{ AUDIT_LOGS : "ejecuta"
+    SESIONES_TOTEM |o--o{ AUDIT_LOGS : "se audita en"
+
+    SOCIOS {
+        uuid id PK
+        varchar rut UK "matrícula normalizada"
+        varchar nombre
+        varchar apellido
+        date fecha_nacimiento
+        int edad_declarada
+        varchar telefono
+        varchar plan_membresia
+        timestamptz created_at
+    }
+    TOTEMS {
+        uuid id PK
+        varchar codigo_serial UK
+        varchar ubicacion
+        varchar sucursal
+        varchar version_firmware
+        boolean activo
+        timestamptz ultimo_heartbeat
+    }
+    PERSONAL_GIMNASIO {
+        uuid id PK
+        varchar nombre
+        varchar apellido
+        enum rol "admin, encargado (de salud)"
+        varchar sucursal
+        varchar email UK "usuario del login"
+        boolean activo
+        varchar password_hash
+    }
+    SESIONES_TOTEM {
+        uuid id PK
+        uuid socio_id FK
+        uuid totem_id FK
+        uuid personal_id FK
+        timestamptz inicio_sesion
+        timestamptz fin_sesion
+        varchar estado "pendiente, validada"
+        varchar ip_totem
+        boolean consentimiento
+        timestamptz consentimiento_en
+    }
+    MEDICIONES_CORPORALES {
+        uuid id PK
+        uuid sesion_id FK
+        float peso_kg
+        float porcentaje_grasa
+        float masa_muscular_kg
+        float frecuencia_cardiaca
+        float presion_sistolica
+        float presion_diastolica
+        float fc_recuperacion
+        float imc
+        float estatura_cm
+        float vo2_max
+        float temperatura_c
+        float saturacion_oxigeno
+        jsonb dispositivos
+        jsonb errores_medicion
+        boolean validado
+        timestamptz capturado_en
+    }
+    CUESTIONARIOS_OBJETIVOS {
+        uuid id PK
+        uuid sesion_id FK, UK
+        varchar objetivo_principal
+        varchar nivel_experiencia
+        int dias_disponibles_semana
+        text lesiones_previas
+        boolean antecedentes_cronicos
+        jsonb sintomas
+        jsonb condiciones
+        int duracion_sesion_min
+        timestamptz respondido_en
+    }
+    INFERENCIAS_IA {
+        uuid id PK
+        uuid sesion_id FK, UK
+        varchar categoria_aptitud "A1 a A4"
+        float confianza_modelo
+        text rutina_sugerida
+        varchar version_modelo
+        jsonb features_entrada
+        jsonb reglas_aplicadas
+        float latencia_ms
+        varchar alerta
+        varchar alerta_nivel "critica, riesgo"
+        boolean requiere_revision
+        varchar motivo_revision
+        uuid alerta_revisada_por FK
+        timestamptz alerta_revisada_en
+        timestamptz generado_en
+    }
+    RESULTADOS_RUTINA {
+        uuid id PK
+        uuid sesion_id FK, UK
+        uuid inferencia_id FK
+        uuid personal_id FK
+        varchar nivel_final "A1 a A4"
+        varchar decision_personal "confirmada, modificada"
+        text rutina_final
+        text observaciones
+        text motivo_derivacion
+        timestamptz asignado_en
+    }
+    AUDIT_LOGS {
+        uuid id PK
+        uuid sesion_id FK
+        uuid personal_id FK
+        varchar accion
+        jsonb detalle
+        timestamptz ocurrido_en
+    }

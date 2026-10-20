@@ -1,0 +1,34 @@
+// Diagrama de comunicación (vista de procesos 4+1). Mismos mensajes que el de secuencia, agrupados por enlace.
+digraph comunicacion {
+  rankdir=LR;
+  graph [fontname="DejaVu Sans", nodesep=0.7, ranksep=1.1, pad=0.3];
+  node  [fontname="DejaVu Sans", fontsize=11, shape=box, style="rounded,filled", penwidth=1.2];
+  edge  [fontname="DejaVu Sans", fontsize=9, color="#555555", arrowsize=0.7];
+
+  Socio [label=":Socio", shape=ellipse, style=filled, fillcolor=white, color="#6C8EBF"];
+  Salud [label=":Encargado de salud\n(rol encargado)", shape=ellipse, style=filled, fillcolor=white, color="#6C8EBF"];
+  Gym   [label=":Encargado del gimnasio\n(rol admin)", shape=ellipse, style=filled, fillcolor=white, color="#6C8EBF"];
+
+  App   [label=":AppTotem\n(Expo / React Native)", fillcolor="#E8F0FA", color="#6C8EBF"];
+  Sens  [label=":Sensores\n(oxímetro, balanza, tensiómetro)", fillcolor="#E8F0FA", color="#6C8EBF"];
+  API   [label=":ApiFastAPI\n(main.py)", fillcolor="#FDF3E3", color="#D79B00"];
+  Pers  [label=":Persistencia\n(persistencia.py)", fillcolor="#FDF3E3", color="#D79B00"];
+  Motor [label=":MotorAptitud\n(inferencia.py / motor_aptitud.py)", fillcolor="#EFE6F7", color="#9673A6"];
+  XGB   [label=":ModeloXGBoost\n(ia/modelo.py, opcional)", fillcolor="#EFE6F7", color="#9673A6"];
+  DB    [label=":PostgreSQL", fillcolor="#E6F4EA", color="#82B366"];
+  Dash  [label=":Dashboard\n(Next.js)", fillcolor="#FBE7E7", color="#B85450"];
+
+  Socio -> App  [label="1: ingresarMatricula()\l4: responderPasos() y consentir()\l"];
+  App   -> Sens [label="4.1: leerMedicion() [por sensor]"];
+  App   -> API  [label="2: POST /api/socios/identificar\l3: POST /api/socios (si es nuevo)\l5: POST /api/evaluaciones\l"];
+  API   -> App  [label="5.3: sesion_id", style=dashed];
+  API   -> Pers [label="2.1: resumen_identificacion()\l3.1: registrar_socio()\l5.1: guardar_evaluacion()\l7.3.1: validar_sesion()\l"];
+  Pers  -> Motor [label="5.1.2: evaluar_entrada()"];
+  Motor -> XGB  [label="5.1.2.1: predecir()  [si hay modelo]"];
+  Pers  -> DB   [label="2.1.1: consultar socio\l3.1.1: insertar socio\l5.1.1: insertar sesión, mediciones, cuestionario\l5.1.3: insertar inferencia\l7.3.1.1: actualizar sesión\l"];
+  API   -> DB   [label="7.3.2, 9.1.1: insertar AuditLog"];
+  API   -> Dash [label="5.2: broadcast(sesion)  [WebSocket]", style=dashed];
+  Dash  -> API  [label="6.1, 8.1: POST /api/auth/login\l7.1: GET /api/evaluaciones\l7.2: POST /api/evaluaciones/{id}/mediciones/validar\l7.3: PUT /api/evaluaciones/{id}  [confirma, ajusta o deriva]\l9.1: POST /api/evaluaciones/{id}/alerta/revisar\l"];
+  Salud -> Dash [label="6: iniciarSesion()\l7: revisarEvaluacion()\l"];
+  Gym   -> Dash [label="8: iniciarSesion()\l9: revisarAlerta()\l"];
+}

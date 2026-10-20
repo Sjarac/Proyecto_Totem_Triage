@@ -1,0 +1,44 @@
+stateDiagram-v2
+    [*] --> EnEspera
+
+    EnEspera --> IngresoAntecedentes: Usuario toca "Iniciar evaluación"
+
+    IngresoAntecedentes --> Cuestionario: Antecedentes completos
+
+    Cuestionario --> EvaluandoRiesgo: Cuestionario enviado
+
+    EvaluandoRiesgo --> DerivacionRecomendada: Bandera de riesgo grave
+    EvaluandoRiesgo --> SignosVitalesReposo: Sin banderas de riesgo
+
+    DerivacionRecomendada --> FinSesion: Usuario confirma lectura del aviso
+
+    SignosVitalesReposo --> ErrorSensor: Sensor no responde o lectura inválida
+    ErrorSensor --> SignosVitalesReposo: Reintentar medición
+    ErrorSensor --> FinSesion: Usuario cancela
+
+    SignosVitalesReposo --> AlertaCritica: Signo vital fuera de rango seguro
+    SignosVitalesReposo --> PruebaEsfuerzo: Signos vitales dentro de rango
+
+    PruebaEsfuerzo --> AlertaCritica: Usuario presenta síntomas o detiene la prueba
+    PruebaEsfuerzo --> FCRecuperacion: Prueba completada
+
+    FCRecuperacion --> ErrorSensor: Sensor no responde o lectura inválida
+    FCRecuperacion --> Antropometria: FC de recuperación registrada y VO2 máx estimado
+
+    Antropometria --> ErrorSensor: Sensor no responde o lectura inválida
+    Antropometria --> EnvioDatos: Medidas completas
+
+    EnvioDatos --> Procesando: Backend recibe los datos
+
+    Procesando --> AlertaCritica: Modelo detecta condición de riesgo
+    Procesando --> ResultadoDisponible: Categoría de aptitud generada
+    Procesando --> ErrorBackend: Sin respuesta o timeout
+
+    ErrorBackend --> EnvioDatos: Reintentar envío
+    ErrorBackend --> FinSesion: Usuario cancela
+
+    AlertaCritica --> FinSesion: Encargado del gimnasio notificado
+
+    ResultadoDisponible --> FinSesion: Usuario visualiza resultado
+
+    FinSesion --> [*]

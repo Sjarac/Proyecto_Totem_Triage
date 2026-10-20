@@ -1,0 +1,89 @@
+sequenceDiagram
+    autonumber
+    actor Socio
+    participant App as App Tótem<br/>(Expo / React Native)
+    participant Sens as Sensores<br/>(oxímetro, balanza, tensiómetro)
+    participant API as API FastAPI<br/>(main.py)
+    participant Pers as persistencia.py
+    participant Motor as Motor de aptitud + IA<br/>(inferencia / motor_aptitud / ia)
+    participant DB as PostgreSQL
+    participant Dash as Dashboard<br/>(Next.js)
+    actor Salud as Encargado de salud<br/>(rol encargado)
+    actor Gym as Encargado del gimnasio<br/>(rol admin)
+
+    Note over Socio,DB: Paso 1: identificación por matrícula
+    Socio->>App: Ingresa matrícula
+    App->>App: normalizarMatricula() / matriculaValida()
+    App->>API: POST /api/socios/identificar (X-Totem-Key)
+    API->>API: verificar_totem() + límite de consultas por IP
+    API->>Pers: buscar_socio() / resumen_identificacion()
+    Pers->>DB: SELECT socio y evaluaciones previas
+    DB-->>Pers: datos del socio
+    Pers-->>API: registrado, evaluación vigente
+    API-->>App: RespuestaIdentificacion
+    opt Socio nuevo
+        App->>API: POST /api/socios (datos de registro)
+        API->>Pers: registrar_socio()
+        Pers->>DB: INSERT socio
+        alt Posible duplicado
+            API-->>App: 409 posible_duplicado (coincidencias)
+            App->>API: POST /api/socios (confirmar_duplicado = true)
+        end
+        API-->>App: 201 socio creado
+    end
+
+    Note over Socio,Sens: Pasos 2 a 4: mediciones, objetivo y salud
+    loop Por cada sensor
+        App->>Sens: Leer medición (Bluetooth)
+        Sens-->>App: valor medido
+    end
+    Note right of Sens: Oxímetro y balanza ya se leen.<br/>El tensiómetro aún se simula.
+    Socio->>App: Elige objetivo y responde salud
+    Socio->>App: Acepta el consentimiento
+
+    Note over App,DB: Paso 5: envío de la evaluación
+    App->>API: POST /api/evaluaciones (EvaluacionPayload)
+    alt Sin consentimiento
+        API-->>App: 400 se requiere consentimiento
+    else Con consentimiento
+        API->>Pers: guardar_evaluacion()
+        Pers->>DB: INSERT SesionTotem (pendiente), MedicionCorporal, CuestionarioObjetivo
+        Pers->>Motor: evaluar_entrada(Entrada)
+        Motor->>Motor: reglas (reglas_aptitud.json)
+        opt MODELO_IA_PATH configurado
+            Motor->>Motor: XGBoost predecir() y fusionar_prediccion()
+        end
+        Motor-->>Pers: categoría A1 a A4, confianza, alerta
+        Pers->>DB: INSERT InferenciaIA y commit
+        Pers-->>API: sesión serializada
+        API--)Dash: broadcast por WebSocket (/ws/dashboard)
+        API-->>App: 200 sesion_id
+        App-->>Socio: Pantalla "Listo"
+    end
+
+    Note over Dash,Salud: Revisión del encargado de salud
+    Salud->>Dash: Inicia sesión
+    Dash->>API: POST /api/auth/login
+    API-->>Dash: token JWT + rol
+    Dash->>API: GET /api/evaluaciones (Bearer JWT)
+    API-->>Dash: cola de evaluaciones
+    Salud->>Dash: Revisa datos y sugerencia de IA
+    Dash->>API: POST /api/evaluaciones/{id}/mediciones/validar
+    alt Confirma o ajusta la categoría
+        Dash->>API: PUT /api/evaluaciones/{id} (nivel_final, observaciones)
+    else Deriva a evaluación médica
+        Dash->>API: PUT /api/evaluaciones/{id} (derivar, motivo)
+    end
+    API->>Pers: validar_sesion()
+    Pers->>DB: UPDATE sesión y registrar resultado
+    API->>DB: INSERT AuditLog (registrar_acceso)
+    API-->>Dash: evaluación actualizada
+
+    Note over Dash,Gym: Atención de alertas
+    opt Hay alerta
+        Dash-->>Gym: Alerta en la cola (tiempo real)
+        Gym->>Dash: Revisa la alerta y deriva si es emergencia
+        Dash->>API: POST /api/evaluaciones/{id}/alerta/revisar
+        API->>DB: INSERT AuditLog (alerta_revisada)
+        API-->>Dash: alerta revisada
+    end
