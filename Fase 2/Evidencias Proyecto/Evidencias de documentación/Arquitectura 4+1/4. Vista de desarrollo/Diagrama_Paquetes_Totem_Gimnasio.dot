@@ -1,0 +1,82 @@
+// Diagrama de paquetes (vista de desarrollo 4+1). Las dependencias del backend salen de los imports reales.
+digraph paquetes {
+  rankdir=LR;
+  compound=true;
+  graph [fontname="DejaVu Sans", fontsize=12, nodesep=0.35, ranksep=0.9, pad=0.3];
+  node  [fontname="DejaVu Sans", fontsize=10, shape=tab, style=filled, fillcolor=white, color="#555555"];
+  edge  [fontname="DejaVu Sans", fontsize=8, style=dashed, color="#555555", arrowsize=0.6];
+
+  subgraph cluster_app {
+    label="totem-app (Expo / React Native)"; style="rounded,filled"; fillcolor="#E8F0FA"; color="#6C8EBF";
+    a_app   [label="app\n(index.tsx, _layout.tsx)"];
+    a_comp  [label="components\n(paso-mediciones, tarjeta-estatura, ui)"];
+    a_sens  [label="sensores\n(oxímetro, balanza, tensiómetro,\nsimulador, rangos, estatura)"];
+    a_srv   [label="services\n(api.ts)"];
+    a_utils [label="utils\n(matricula, fecha, dialogo, planes)"];
+    a_hooks [label="hooks / constants"];
+  }
+
+  subgraph cluster_be {
+    label="backend-totem (FastAPI)"; style="rounded,filled"; fillcolor="#FDF3E3"; color="#D79B00";
+    b_main   [label="main"];
+    b_con    [label="conexion"];
+    b_cred   [label="credenciales"];
+    b_mig    [label="migraciones"];
+    b_models [label="models"];
+    b_schem  [label="schemas"];
+    b_ident  [label="identidad"];
+    b_pers   [label="persistencia"];
+    b_inf    [label="inferencia"];
+    b_motor  [label="motor_aptitud"];
+    b_reglas [label="reglas_aptitud.json", shape=note];
+    b_crear  [label="crear_usuario\n(script)"];
+    subgraph cluster_ia {
+      label="ia"; style="rounded,filled"; fillcolor="#EFE6F7"; color="#9673A6";
+      i_mod [label="modelo"];
+      i_car [label="caracteristicas"];
+      i_ent [label="entrenar"];
+    }
+  }
+
+  subgraph cluster_dash {
+    label="triage-dashboard (Next.js)"; style="rounded,filled"; fillcolor="#FBE7E7"; color="#B85450";
+    d_app  [label="app\n(page.js, layout.js)"];
+    d_ses  [label="components\nSesionDashboard"];
+    d_dash [label="components\nDashboardAptitud"];
+    d_sub  [label="components\nValidacionAptitud\nTendenciaSocio\nMenuUsuario"];
+    d_lib  [label="lib\n(ia, cola, formato,\nmediciones, errores)"];
+  }
+
+  pg  [label="PostgreSQL", shape=cylinder, fillcolor="#E6F4EA", color="#82B366"];
+  xgb [label="XGBoost", shape=component, fillcolor="#EEEEEE"];
+
+  // totem-app
+  a_app -> {a_comp a_sens a_srv a_utils a_hooks};
+  a_comp -> a_sens;
+  a_srv -> a_utils;
+
+  // backend-totem
+  b_main -> {b_con b_cred b_mig b_models b_pers b_ident b_schem};
+  b_mig -> b_models;
+  b_schem -> b_ident;
+  b_pers -> {b_models b_ident b_inf b_motor b_schem};
+  b_inf -> b_motor;
+  b_inf -> i_mod [label="carga opcional"];
+  b_motor -> b_reglas;
+  i_mod -> {i_car b_motor xgb};
+  i_car -> b_motor;
+  i_ent -> {i_car b_motor xgb};
+  b_crear -> {b_con b_cred b_models};
+
+  // triage-dashboard
+  d_app -> d_ses;
+  d_ses -> {d_dash d_lib};
+  d_dash -> {d_sub d_lib};
+  d_sub -> d_lib;
+
+  // entre proyectos
+  a_srv -> b_main [label="REST + X-Totem-Key"];
+  d_ses -> b_main [label="REST (login)"];
+  d_dash -> b_main [label="REST + JWT, WebSocket"];
+  b_main -> pg [label="SQLAlchemy"];
+}
