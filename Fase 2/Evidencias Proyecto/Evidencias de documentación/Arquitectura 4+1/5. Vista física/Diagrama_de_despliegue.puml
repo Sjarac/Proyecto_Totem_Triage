@@ -1,0 +1,81 @@
+@startuml Diagrama_de_despliegue
+' Vista física (4+1): dónde corre cada componente y cómo se comunican.
+' Opción híbrida: la tablet lee los sensores Bluetooth comerciales; el ESP32 maneja la pantalla LED y el MAX30102 de respaldo.
+<style>
+document {
+  Margin 30
+}
+</style>
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam nodesep 70
+skinparam ranksep 80
+skinparam node {
+  BackgroundColor White
+  BorderColor #333333
+}
+skinparam artifact {
+  BackgroundColor #F5F5F5
+  BorderColor #333333
+}
+skinparam database {
+  BackgroundColor White
+  BorderColor #333333
+}
+skinparam ArrowColor #333333
+left to right direction
+
+node "Tótem (gimnasio)" as Totem {
+  node "Tablet Android" <<device>> as Tablet {
+    artifact "totem-app\n(React Native / Expo)" as App
+  }
+  node "ESP32" <<device>> as ESP32 {
+    artifact "firmware\n(estado del tótem y MAX30102)" as Firmware
+  }
+  node "Pantalla LED de estado" <<device>> as LED
+  node "Módulo MAX30102\n(respaldo, solo si el oxímetro\nBluetooth no se puede leer)" <<device>> as MAX
+  node "Sensores Bluetooth comerciales" <<device>> as Sensores {
+    artifact "Tensiómetro Beurer BM54" as BM54
+    artifact "Termómetro Beurer FT95" as FT95
+    artifact "Oxímetro de pulso" as Oxi
+    artifact "Balanza con bioimpedancia" as Balanza
+  }
+}
+
+node "Render (nube)" <<execution environment>> as Render {
+  artifact "backend-totem\n(FastAPI + SQLAlchemy)" as API
+}
+
+database "PostgreSQL" <<database>> as BD {
+  artifact "tabla evaluaciones" as Tabla
+}
+
+node "Google Cloud" <<execution environment>> as GCP {
+  artifact "Modelo XGBoost\n(endpoint Vertex AI)" as Modelo
+}
+
+node "Vercel (nube)" <<execution environment>> as Vercel {
+  artifact "triage-dashboard\n(Next.js / React)" as Dash
+}
+
+node "PC del gimnasio" <<device>> as PC {
+  artifact "Navegador web" as Browser
+}
+
+App -- API : HTTPS\nPOST /api/evaluaciones
+API -- BD : TCP 5432\n(SQL)
+API -- Modelo : HTTPS\n(predicción)
+API -- Browser : WSS\n/ws/dashboard
+Browser -- Dash : HTTPS
+
+Sensores -- Tablet : BLE
+ESP32 -- Tablet : BLE
+ESP32 -- LED : GPIO
+ESP32 -- MAX : I2C
+
+note bottom of Modelo
+  Hoy el backend usa una regla
+  simulada; la llamada al modelo
+  está en integración.
+end note
+@enduml
