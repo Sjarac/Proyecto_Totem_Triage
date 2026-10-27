@@ -9,7 +9,7 @@ digraph paquetes {
   subgraph cluster_app {
     label="totem-app (Expo / React Native)"; style="rounded,filled"; fillcolor="#E8F0FA"; color="#6C8EBF";
     a_app   [label="app\n(index.tsx, _layout.tsx)"];
-    a_comp  [label="components\n(paso-mediciones, tarjeta-estatura, ui)"];
+    a_comp  [label="components\n(bienvenida-totem, paso-mediciones,\ntarjeta-estatura, ui)"];
     a_sens  [label="sensores\n(oxímetro, balanza, tensiómetro,\nsimulador, rangos, estatura)"];
     a_srv   [label="services\n(api.ts)"];
     a_utils [label="utils\n(matricula, fecha, dialogo, planes)"];
@@ -30,6 +30,7 @@ digraph paquetes {
     b_motor  [label="motor_aptitud"];
     b_reglas [label="reglas_aptitud.json", shape=note];
     b_crear  [label="crear_usuario\n(script)"];
+    b_etl    [label="extraer_dataset\n(script ETL)"];
     subgraph cluster_ia {
       label="ia"; style="rounded,filled"; fillcolor="#EFE6F7"; color="#9673A6";
       i_mod [label="modelo"];
@@ -41,8 +42,11 @@ digraph paquetes {
   subgraph cluster_dash {
     label="triage-dashboard (Next.js)"; style="rounded,filled"; fillcolor="#FBE7E7"; color="#B85450";
     d_app  [label="app\n(page.js, layout.js)"];
+    d_api  [label="app/api/noticias\n(route.js)"];
     d_ses  [label="components\nSesionDashboard"];
+    d_bien [label="components\nBienvenida"];
     d_dash [label="components\nDashboardAptitud"];
+    d_ui   [label="components\nPanelLateral, TopNav,\niconos, enlacesDuoc"];
     d_sub  [label="components\nValidacionAptitud\nTendenciaSocio\nMenuUsuario"];
     d_lib  [label="lib\n(ia, cola, formato,\nmediciones, errores)"];
   }
@@ -67,11 +71,15 @@ digraph paquetes {
   i_car -> b_motor;
   i_ent -> {i_car b_motor xgb};
   b_crear -> {b_con b_cred b_models};
+  b_etl -> {b_con b_models};
 
   // triage-dashboard
   d_app -> d_ses;
-  d_ses -> {d_dash d_lib};
-  d_dash -> {d_sub d_lib};
+  d_ses -> {d_bien d_dash d_lib};
+  d_bien -> {d_ui d_lib};
+  d_bien -> d_api [label="noticias Duoc"];
+  d_dash -> {d_sub d_ui d_lib};
+  d_ui -> d_lib;
   d_sub -> d_lib;
 
   // entre proyectos
