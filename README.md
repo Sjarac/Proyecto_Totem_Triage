@@ -5,7 +5,6 @@ Tótem de autoservicio para gimnasios que evalúa si una persona está en condic
 Proyecto de título de Ingeniería en Informática, Duoc UC (Capstone APT122).
 
 * **Dashboard en línea:** [triage-dashboard-three.vercel.app](https://triage-dashboard-three.vercel.app/)
-* **Versión anterior de la app en Snack Expo** (solo con invitación): [snack.expo.dev/@happy_sky/happysdogs](https://snack.expo.dev/@happy_sky/happysdogs)
 
 ---
 
@@ -25,7 +24,7 @@ El usuario se identifica en el tótem, responde un cuestionario de salud, se tom
 ### Estado actual
 Prototipo funcional de punta a punta: la app del tótem, el cuestionario de salud, el backend con el motor de evaluación, la base de datos y el dashboard con inicio de sesión. El backend está desplegado en Render y el dashboard en Vercel.
 
-* **Sensores:** la app ya lee por Bluetooth el oxímetro y la balanza de bioimpedancia a través de sus puentes. El puente del tensiómetro (Beurer BM54) está programado y probado con datos de la especificación, pero aún no se conecta al equipo real; mientras tanto, la presión arterial se simula.
+* **Sensores:** la app ya lee por Bluetooth el oxímetro, la balanza de bioimpedancia y el tensiómetro (Beurer BM 54) a través de sus puentes; con el tensiómetro real, la app muestra los mismos valores que la pantalla del aparato. El termómetro todavía no se integra. En el tótem final, la lectura de los sensores pasará a una tablet.
 * **Evaluación:** hoy la categoría la decide un motor de reglas clínicas (`reglas_aptitud.json`). El pipeline del modelo XGBoost está listo para entrenarse en cuanto exista un dataset etiquetado por un profesional; cuando se active, se combina con las reglas y el resultado final es siempre el más conservador de los dos.
 
 ---
@@ -87,13 +86,13 @@ El proyecto se gestiona con **Scrum**. Al cierre de cada sprint se hace una retr
 ### Fase 2
 * [Evidencias grupales](Fase%202/Evidencias%20Grupales): informe de avance (guía 2.4), informe final (guía 2.6) y planillas de evaluación.
 * [Evidencias individuales](Fase%202/Evidencias%20Individuales): diario de reflexión de cada integrante (guía 2.1).
-* [Presentación del proyecto](Fase%202/Evidencias%20Proyecto/Presentaci%C3%B3n%20Proyecto%20Fase%202.pptx).
+* [Presentación del proyecto](Fase%202/Evidencias%20Proyecto/Presentaci%C3%B3n%20Proyecto.pptx).
 
 ### Evidencias de sistema
 * [Código fuente](Fase%202/Evidencias%20Proyecto/TestB-Totem): app del tótem, backend, dashboard, puentes de los sensores y quiosco (ver sección 7).
 * [Capturas del programa](Fase%202/Evidencias%20Proyecto/Capturas%20programa).
 * [Base de datos](Fase%202/Evidencias%20Proyecto/Base%20de%20datos): [diagrama entidad-relación](Fase%202/Evidencias%20Proyecto/Base%20de%20datos/Diagrama_ER_Totem_Gimnasio.png) de las 9 tablas de PostgreSQL.
-* Enlaces de despliegue: [Vercel](Fase%202/Evidencias%20Proyecto/Vercel.txt) (dashboard) y [Snack Expo](Fase%202/Evidencias%20Proyecto/Snack.expo.txt) (versión anterior de la app).
+* Enlace de despliegue: [Vercel](Fase%202/Evidencias%20Proyecto/Vercel.txt) (dashboard).
 
 Toda la documentación técnica de la Fase 2 está en [`Fase 2/Evidencias Proyecto/Evidencias de documentación`](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n).
 
@@ -123,7 +122,7 @@ Los archivos `.bpmn` se pueden abrir y editar en [demo.bpmn.io](https://demo.bpm
 * [Product Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Backlogs/Product_Backlog_Totem_Gimnasio.xlsx) y [Sprint Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Backlogs/Sprint_Backlog_Totem_Gimnasio.xlsx)
 * [Visión del Producto](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Visi%C3%B3n%20y%20DoD/Vision_del_Producto.png)
 * [Definición de Terminado (DoD)](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Visi%C3%B3n%20y%20DoD/Definicion_de_Terminado.png)
-* Retrospectivas: [Sprint 1](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_1.png) · [Sprint 2](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_2.png) · [Sprint 3](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_3.png) · [Sprint 4](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_4.png) · [Sprint 5](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_5.png)
+* Retrospectivas: [Sprint 1](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_1.png) · [Sprint 2](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_2.png) · [Sprint 3](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_3.png) · [Sprint 4](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_4.png) · [Sprint 5](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_5.png) · [Sprint 6](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_6.png)
 
 ---
 
