@@ -162,4 +162,33 @@ cp .env.example .env        # EXPO_PUBLIC_API_URL y EXPO_PUBLIC_SENSORES ("simul
 npx expo start -c
 ```
 
-Los pasos para conectar los sensores reales y montar el tótem en modo quiosco están en el README de cada puente y en el de la carpeta `quiosco`. Las pruebas se ejecutan con `pytest` en el backend y los puentes, y con `npm test` en la app y el dashboard.
+Configurar el equipo del tótem (Windows)
+
+El PC que se conecta a los sensores por Bluetooth se configura con un solo comando. Se ejecuta una vez en cada equipo nuevo, con Python, Node.js y el Bluetooth encendido:
+
+### powershell
+```bash
+git clone https://github.com/Sjarac/Proyecto_Totem_Triage.git
+cd "Proyecto_Totem_Triage\Fase 2\Evidencias Proyecto\TestB-Totem\quiosco"
+.\configurar_equipo.ps1
+```
+El script hace todo esto:
+
+Comprueba los requisitos.
+Instala las dependencias de los puentes y de la app.
+Crea el puente.env de cada sensor con las direcciones de dispositivos.json.
+Fija la IP del equipo y la clave de los puentes.
+Abre el firewall. Para esto pide permisos de administrador una vez.
+Compila la app.
+Arranca los puentes y la app, y comprueba que respondan.
+
+Al final muestra la dirección que hay que abrir en la tablet.
+
+Opción	Para qué sirve
+-SoloVerificar	Muestra qué haría y qué falta, sin cambiar nada.
+-IP 192.168.1.50	Fija la IP si la detectada no es la de la red de la tablet.
+-SinDependencias, -SinFirewall, -SinCompilar, -SinIniciar	Omiten ese paso.
+
+Si PowerShell bloquea los scripts, ejecuta antes Set-ExecutionPolicy -Scope CurrentUser RemoteSigned. El emparejamiento Bluetooth del tensiómetro es propio de cada PC, así que hay que repetirlo en cada equipo nuevo. Para detener todo, usa .\detener_quiosco.ps1.
+
+Los detalles para conectar los sensores reales y montar el tótem en modo quiosco están en el README de cada puente y en el de la carpeta quiosco. Las pruebas se ejecutan con pytest en el backend y los puentes, y con npm test en la app y el dashboard.
