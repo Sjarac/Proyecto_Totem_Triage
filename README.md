@@ -86,7 +86,7 @@ El proyecto se gestiona con **Scrum**. Al cierre de cada sprint se hace una retr
 ### Fase 2
 * [Evidencias grupales](Fase%202/Evidencias%20Grupales): informe de avance (guía 2.4), informe final (guía 2.6) y planillas de evaluación.
 * [Evidencias individuales](Fase%202/Evidencias%20Individuales): diario de reflexión de cada integrante (guía 2.1).
-* [Presentación del proyecto](Fase%202/Evidencias%20Proyecto/Presentaci%C3%B3n%20Proyecto.pptx).
+* [Presentación del proyecto](Presentaci%C3%B3n%20Proyecto.pptx).
 
 ### Evidencias de sistema
 * [Código fuente](Fase%202/Evidencias%20Proyecto/TestB-Totem): app del tótem, backend, dashboard, puentes de los sensores y quiosco (ver sección 7).
@@ -119,10 +119,10 @@ Los archivos `.bpmn` se pueden abrir y editar en [demo.bpmn.io](https://demo.bpm
 * [Documento de justificación](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Justificaci%C3%B3n%20de%20la%20innovaci%C3%B3n/Justificacion_innovacion_Capstone_003.docx): comparación con soluciones existentes y elementos innovadores del proyecto.
 
 ### Metodología ágil
-* [Product Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Backlogs/Product_Backlog_Totem_Gimnasio.xlsx) y [Sprint Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Backlogs/Sprint_Backlog_Totem_Gimnasio.xlsx)
-* [Visión del Producto](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Visi%C3%B3n%20y%20DoD/Vision_del_Producto.png)
-* [Definición de Terminado (DoD)](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Visi%C3%B3n%20y%20DoD/Definicion_de_Terminado.png)
-* Retrospectivas: [Sprint 1](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_1.png) · [Sprint 2](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_2.png) · [Sprint 3](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_3.png) · [Sprint 4](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_4.png) · [Sprint 5](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_5.png) · [Sprint 6](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Retrospectivas/Retrospectiva_Sprint_6.png)
+* [Product Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Backlogs/Product_Backlog_Totem_Gimnasio.xlsx) y [Sprint Backlog](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Backlogs/Sprint_Backlog_Totem_Gimnasio.xlsx)
+* [Visión del Producto](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Vision_del_Producto.png)
+* [Definición de Terminado (DoD)](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Definicion_de_Terminado.png)
+* Retrospectivas: [Sprint 1](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_1.png) · [Sprint 2](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_2.png) · [Sprint 3](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_3.png) · [Sprint 4](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_4.png) · [Sprint 5](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_5.png) · [Sprint 6](Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentaci%C3%B3n/Metodolog%C3%ADa%20%C3%A1gil/Retrospectivas/Retrospectiva_Sprint_6.png)
 
 ---
 
@@ -162,33 +162,34 @@ cp .env.example .env        # EXPO_PUBLIC_API_URL y EXPO_PUBLIC_SENSORES ("simul
 npx expo start -c
 ```
 
-Configurar el equipo del tótem (Windows)
+### Configurar el equipo del tótem (Windows)
 
 El PC que se conecta a los sensores por Bluetooth se configura con un solo comando. Se ejecuta una vez en cada equipo nuevo, con Python, Node.js y el Bluetooth encendido:
 
-### powershell
-```bash
+```powershell
 git clone https://github.com/Sjarac/Proyecto_Totem_Triage.git
 cd "Proyecto_Totem_Triage\Fase 2\Evidencias Proyecto\TestB-Totem\quiosco"
 .\configurar_equipo.ps1
 ```
+
 El script hace todo esto:
 
-Comprueba los requisitos.
-Instala las dependencias de los puentes y de la app.
-Crea el puente.env de cada sensor con las direcciones de dispositivos.json.
-Fija la IP del equipo y la clave de los puentes.
-Abre el firewall. Para esto pide permisos de administrador una vez.
-Compila la app.
-Arranca los puentes y la app, y comprueba que respondan.
+1. Comprueba los requisitos.
+2. Instala las dependencias de los puentes y de la app.
+3. Crea el `puente.env` de cada sensor con las direcciones de `dispositivos.json`.
+4. Fija la IP del equipo y la clave de los puentes.
+5. Abre el firewall. Para esto pide permisos de administrador una vez.
+6. Compila la app.
+7. Arranca los puentes y la app, y comprueba que respondan.
 
 Al final muestra la dirección que hay que abrir en la tablet.
 
-Opción	Para qué sirve
--SoloVerificar	Muestra qué haría y qué falta, sin cambiar nada.
--IP 192.168.1.50	Fija la IP si la detectada no es la de la red de la tablet.
--SinDependencias, -SinFirewall, -SinCompilar, -SinIniciar	Omiten ese paso.
+| Opción | Para qué sirve |
+|---|---|
+| `-SoloVerificar` | Muestra qué haría y qué falta, sin cambiar nada. |
+| `-IP 192.168.1.50` | Fija la IP si la detectada no es la de la red de la tablet. |
+| `-SinDependencias`, `-SinFirewall`, `-SinCompilar`, `-SinIniciar` | Omiten ese paso. |
 
-Si PowerShell bloquea los scripts, ejecuta antes Set-ExecutionPolicy -Scope CurrentUser RemoteSigned. El emparejamiento Bluetooth del tensiómetro es propio de cada PC, así que hay que repetirlo en cada equipo nuevo. Para detener todo, usa .\detener_quiosco.ps1.
+Si PowerShell bloquea los scripts, ejecuta antes `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. El emparejamiento Bluetooth del tensiómetro es propio de cada PC, así que hay que repetirlo en cada equipo nuevo. Para detener todo, usa `.\detener_quiosco.ps1`.
 
-Los detalles para conectar los sensores reales y montar el tótem en modo quiosco están en el README de cada puente y en el de la carpeta quiosco. Las pruebas se ejecutan con pytest en el backend y los puentes, y con npm test en la app y el dashboard.
+Los detalles para conectar los sensores reales y montar el tótem en modo quiosco están en el README de cada puente y en el de la carpeta `quiosco`. Las pruebas se ejecutan con `pytest` en el backend y los puentes, y con `npm test` en la app y el dashboard.
