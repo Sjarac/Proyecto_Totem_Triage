@@ -32,7 +32,7 @@ Prototipo funcional de punta a punta: la app del tótem, el cuestionario de salu
 ## 2. Tecnologías Utilizadas
 
 * **App del tótem:** React Native (Expo), ejecutada como web en modo quiosco en el equipo del tótem.
-* **Hardware:** oxímetro de pulso, balanza con bioimpedancia y tensiómetro Beurer BM54 (Bluetooth LE). Cada sensor se conecta mediante un puente en Python (`bleak`) que entrega la medición a la app por HTTP local.
+* **Hardware:** oxímetro de pulso, balanza con bioimpedancia y tensiómetro Beurer BM54 (Bluetooth LE). Cada sensor se conecta mediante un puente en Python (`bleak`) que entrega la medición a la app por HTTP local. El tótem ya no usa locker.
 * **Backend:** Python (FastAPI), desplegado en Render.
 * **Evaluación de aptitud:** motor de reglas clínicas y pipeline de Machine Learning con XGBoost.
 * **Base de datos:** PostgreSQL (9 tablas).
