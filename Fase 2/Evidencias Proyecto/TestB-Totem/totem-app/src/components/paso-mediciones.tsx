@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 
 import TarjetaEstatura from './tarjeta-estatura';
 import {
-  ErrorSensor, ETIQUETA_SENSOR, INSTRUCCIONES, TIEMPOS_DEL_CICLO, TIPOS_SENSOR, validarLectura,
+  ErrorSensor, ETIQUETA_SENSOR, INSTRUCCIONES, PASOS_USO, TIEMPOS_DEL_CICLO, TIPOS_SENSOR, validarLectura,
   type CodigoError, type ErrorMedicion, type Lectura, type LecturaEnVivo, type ProgresoPrueba, type Sensores, type Sexo, type TipoSensor,
   type ValoresMedidos,
 } from '../sensores';
@@ -286,6 +286,16 @@ export default function PasoMediciones({ sensores, lecturas, onLectura, onError,
             <Text style={estilos.titulo}>{etiqueta}</Text>
             {bloqueado && <Text style={estilos.candado} accessibilityRole="text">🔒 Primero ingresa tu estatura</Text>}
             <Text style={estilos.instruccion}>{INSTRUCCIONES[tipo]}</Text>
+            {PASOS_USO[tipo] && (
+              <View style={estilos.pasos} accessibilityLabel={`Cómo usar el ${etiqueta}`}>
+                <Text style={estilos.pasosTitulo}>ⓘ CÓMO USARLO</Text>
+                {PASOS_USO[tipo]!.map((paso, i) => (
+                  <Text key={paso} style={estilos.pasosLinea}>
+                    <Text style={estilos.pasosNumero}>{i + 1}. </Text>{paso}
+                  </Text>
+                ))}
+              </View>
+            )}
             {sensores[tipo].guia && (
               <View style={estilos.guia}>
                 <Text style={estilos.guiaTitulo}>{sensores[tipo].guia!.nombre.toUpperCase()}</Text>
@@ -444,6 +454,10 @@ const estilos = StyleSheet.create({
   bloqueada: { opacity: 0.55, backgroundColor: '#f8fafc' },
   candado: { fontSize: 12, fontWeight: 'bold', color: '#06386d', marginBottom: 8 },
   botonBloqueado: { backgroundColor: '#cbd5e1' },
+  pasos: { marginBottom: 10, padding: 10, borderRadius: 8, backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fcd34d' },
+  pasosTitulo: { fontSize: 10, fontWeight: 'bold', color: '#b45309', letterSpacing: 1, marginBottom: 4 },
+  pasosLinea: { fontSize: 12, color: '#78350f', lineHeight: 18, marginBottom: 2 },
+  pasosNumero: { fontWeight: 'bold', color: '#b45309' },
   guia: { marginBottom: 10, padding: 10, borderRadius: 8, backgroundColor: '#eef3fb', borderWidth: 1, borderColor: '#aec6e6' },
   guiaTitulo: { fontSize: 10, fontWeight: 'bold', color: '#06386d', letterSpacing: 1, marginBottom: 4 },
   guiaLinea: { fontSize: 12, color: '#475569', lineHeight: 17, marginBottom: 2 },

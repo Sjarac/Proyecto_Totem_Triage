@@ -17,6 +17,28 @@ export const INSTRUCCIONES: Record<TipoSensor, string> = {
   oximetro_recuperacion: 'Apenas termines el ejercicio, vuelve a colocar el dedo en el oxímetro y mantén la mano quieta.',
 };
 
+/**
+ * Pasos para operar el equipo (qué botones pulsar), que se muestran como una ayuda paso a paso en la tarjeta.
+ * A diferencia de INSTRUCCIONES (postura y preparación), esto describe la secuencia de botones del dispositivo real.
+ */
+export const PASOS_USO: Partial<Record<TipoSensor, readonly string[]>> = {
+  tensiometro: [
+    'Ajusta el brazalete en el brazo, a la altura del corazón.',
+    'Pulsa el botón de inicio (START/STOP) para comenzar la medición.',
+    'Cuando termine de calcular, pulsa M1 o M2 para elegir la memoria.',
+    'Pulsa de nuevo el botón de encendido (START/STOP) para enviar los datos al tótem.',
+  ],
+  oximetro: [
+    'Coloca el dedo índice dentro del oxímetro.',
+    'Enciéndelo pulsando su botón.',
+    'Mantén la mano quieta hasta que la lectura se estabilice; los datos se envían solos.',
+  ],
+  oximetro_recuperacion: [
+    'Apenas termines el ejercicio, vuelve a colocar el dedo en el oxímetro.',
+    'Enciéndelo pulsando su botón y mantén la mano quieta hasta que se estabilice.',
+  ],
+};
+
 type Rango = { min: number; max: number; etiqueta: string; unidad: string };
 
 /**
